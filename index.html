@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registration Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    form, table { margin-bottom: 30px; }
+    table, th, td { border: 1px solid black; border-collapse: collapse; padding: 8px; }
+  </style>
+</head>
+<body>
+
+  <h2>Registration Form</h2>
+  <form id="registrationForm">
+    <label>Name: <input type="text" id="name" required></label><br><br>
+    <label>Email: <input type="email" id="email" required></label><br><br>
+    <label>Password: <input type="password" id="password" required></label><br><br>
+    <label>Date of Birth: <input type="date" id="dob" required></label><br><br>
+    <label><input type="checkbox" id="terms" required> Accept Terms & Conditions</label><br><br>
+    <button type="submit">Submit</button>
+  </form>
+
+  <h2>Registered Users</h2>
+  <table id="entriesTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Password</th>
+        <th>Dob</th>
+        <th>Accepted terms?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data will be loaded here -->
+    </tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById('registrationForm');
+    const tableBody = document.querySelector('#entriesTable tbody');
+
+    // Load existing data from localStorage
+    window.onload = () => {
+      const saved = JSON.parse(localStorage.getItem('entries')) || [];
+      saved.forEach(entry => addEntryToTable(entry));
+    };
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const dob = document.getElementById('dob').value;
+      const accepted = document.getElementById('terms').checked;
+
+      if (!isValidAge(dob)) {
+        alert("Age must be between 18 and 55 years.");
+        return;
+      }
+
+      const entry = { name, email, password, dob, accepted };
+      addEntryToTable(entry);
+      saveEntry(entry);
+
+      form.reset();
+    });
+
+    function addEntryToTable(entry) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${entry.name}</td>
+        <td>${entry.email}</td>
+        <td>${entry.password}</td>
+        <td>${entry.dob}</td>
+        <td>${entry.accepted}</td>
+      `;
+      tableBody.appendChild(row);
+    }
+
+    function saveEntry(entry) {
+      const saved = JSON.parse(localStorage.getItem('entries')) || [];
+      saved.push(entry);
+      localStorage.setItem('entries', JSON.stringify(saved));
+    }
+
+    function isValidAge(dob) {
+      const birthDate = new Date(dob);
+      const today = new Date();
+
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      const d = today.getDate() - birthDate.getDate();
+      if (m < 0 || (m === 0 && d < 0)) {
+        return age - 1 >= 18 && age - 1 <= 55;
+      }
+      return age >= 18 && age <= 55;
+    }
+  </script>
+
+</body>
+</html>
